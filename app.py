@@ -632,9 +632,9 @@ st.markdown(
         width: 100%;
         min-height: 136px;
         display: flex;
-        flex-direction: column;
-        justify-content: center;
-        gap: 18px;
+        justify-content: space-between;
+        align-items: center;
+        gap: 24px;
 
         background: rgba(255,255,255,0.42);
         backdrop-filter: blur(10px);
@@ -648,25 +648,13 @@ st.markdown(
         box-shadow: 0 8px 24px rgba(0,0,0,0.08);
     }}
 
-    .title-main {{
-        display: block;
-        font-size: 44px;
-        font-weight: 800;
-        line-height: 1.02;
-        color: #20263a;
-        white-space: nowrap;
-        margin: 0;
-        padding: 0;
-        font-family: "Source Sans 3", Arial, sans-serif;
-        text-align: left;
-    }}
-
-    .header-logos-main {{
+    .header-left-main {{
         display: flex;
         align-items: center;
-        justify-content: space-between;
         gap: 22px;
-        width: 100%;
+        min-width: 0;
+        height: 100%;
+        flex: 1 1 auto;
     }}
 
     .left-logo-main {{
@@ -683,6 +671,19 @@ st.markdown(
         height: auto;
         display: block;
         flex-shrink: 0;
+    }}
+
+    .title-main {{
+        display: flex;
+        align-items: center;
+        font-size: 44px;
+        font-weight: 800;
+        line-height: 1.02;
+        color: #20263a;
+        white-space: nowrap;
+        margin: 0;
+        padding: 0;
+        font-family: "Source Sans 3", Arial, sans-serif;
     }}
 
     @media (max-width: 1100px) {{
@@ -713,22 +714,17 @@ st.markdown(
         }}
 
         .header-box-main {{
-            gap: 12px;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 14px;
             padding: 16px 18px;
             min-height: auto;
         }}
 
-        .title-main {{
-            font-size: 24px;
-            line-height: 1.08;
-            white-space: normal;
-            text-align: center;
-        }}
-
-        .header-logos-main {{
-            justify-content: center;
-            gap: 18px;
-            flex-wrap: nowrap;
+        .header-left-main {{
+            width: 100%;
+            align-items: center;
+            gap: 14px;
         }}
 
         .left-logo-main {{
@@ -736,8 +732,15 @@ st.markdown(
             top: 0;
         }}
 
+        .title-main {{
+            font-size: 24px;
+            line-height: 1.08;
+            white-space: normal;
+        }}
+
         .right-logo-main {{
             width: 150px;
+            align-self: flex-end;
         }}
     }}
 
@@ -747,16 +750,12 @@ st.markdown(
             border-radius: 24px;
         }}
 
-        .title-main {{
-            font-size: 22px;
-        }}
-
-        .header-logos-main {{
-            gap: 14px;
-        }}
-
         .left-logo-main {{
             width: 64px;
+        }}
+
+        .title-main {{
+            font-size: 22px;
         }}
 
         .right-logo-main {{
@@ -775,11 +774,11 @@ st.markdown(
     f"""
     <div class="header-wrap-main">
         <div class="header-box-main">
-            <div class="title-main">Galería de la expedición</div>
-            <div class="header-logos-main">
+            <div class="header-left-main">
                 <img src="data:image/png;base64,{logo_left_b64}" class="left-logo-main" alt="Logo galería">
-                <img src="data:image/png;base64,{logo_right_b64}" class="right-logo-main" alt="Logo Farmaenlace">
+                <div class="title-main">Galería de la expedición</div>
             </div>
+            <img src="data:image/png;base64,{logo_right_b64}" class="right-logo-main" alt="Logo Farmaenlace">
         </div>
     </div>
     """,
@@ -793,4 +792,4 @@ if gallery_images:
     carousel_html = build_carousel_html(gallery_images, autoplay_ms=3500)
     components.html(carousel_html, height=860, scrolling=False)
 else:
-    st.warning("No hay imágenes en la carpeta photos.")
+    st.warning("No hay imágenes en la carpeta photos.") 
