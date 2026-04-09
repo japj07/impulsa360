@@ -631,23 +631,21 @@ st.markdown(
     .header-box-main {{
         width: 100%;
         min-height: 136px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 24px;
+
         background: rgba(255,255,255,0.42);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
+
         border: 1px solid rgba(255,255,255,0.18);
         border-radius: 28px;
         padding: 18px 28px;
         box-sizing: border-box;
         overflow: hidden;
         box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-    }}
-
-    .header-desktop {{
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 24px;
-        min-height: 100px;
     }}
 
     .header-left-main {{
@@ -688,42 +686,6 @@ st.markdown(
         font-family: "Source Sans 3", Arial, sans-serif;
     }}
 
-    .header-mobile {{
-        display: none;
-    }}
-
-    .header-mobile-title {{
-        display: flex;
-        justify-content: center;
-        text-align: center;
-        font-size: 24px;
-        font-weight: 800;
-        line-height: 1.08;
-        color: #20263a;
-        margin: 0;
-        font-family: "Source Sans 3", Arial, sans-serif;
-    }}
-
-    .header-mobile-logos {{
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 16px;
-        width: 100%;
-    }}
-
-    .left-logo-mobile {{
-        width: 72px;
-        height: auto;
-        display: block;
-    }}
-
-    .right-logo-mobile {{
-        width: 150px;
-        height: auto;
-        display: block;
-    }}
-
     @media (max-width: 1100px) {{
         .title-main {{
             font-size: 34px;
@@ -752,19 +714,33 @@ st.markdown(
         }}
 
         .header-box-main {{
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 14px;
             padding: 16px 18px;
             min-height: auto;
         }}
 
-        .header-desktop {{
-            display: none;
+        .header-left-main {{
+            width: 100%;
+            align-items: center;
+            gap: 14px;
         }}
 
-        .header-mobile {{
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            width: 100%;
+        .left-logo-main {{
+            width: 72px;
+            top: 0;
+        }}
+
+        .title-main {{
+            font-size: 24px;
+            line-height: 1.08;
+            white-space: normal;
+        }}
+
+        .right-logo-main {{
+            width: 150px;
+            align-self: flex-end;
         }}
     }}
 
@@ -774,19 +750,15 @@ st.markdown(
             border-radius: 24px;
         }}
 
-        .header-mobile-title {{
-            font-size: 22px;
-        }}
-
-        .header-mobile-logos {{
-            gap: 14px;
-        }}
-
-        .left-logo-mobile {{
+        .left-logo-main {{
             width: 64px;
         }}
 
-        .right-logo-mobile {{
+        .title-main {{
+            font-size: 22px;
+        }}
+
+        .right-logo-main {{
             width: 135px;
         }}
     }}
@@ -802,23 +774,11 @@ st.markdown(
     f"""
     <div class="header-wrap-main">
         <div class="header-box-main">
-
-            <div class="header-desktop">
-                <div class="header-left-main">
-                    <img src="data:image/png;base64,{logo_left_b64}" class="left-logo-main" alt="Logo galería">
-                    <div class="title-main">Galería de la expedición</div>
-                </div>
-                <img src="data:image/png;base64,{logo_right_b64}" class="right-logo-main" alt="Logo Farmaenlace">
+            <div class="header-left-main">
+                <img src="data:image/png;base64,{logo_left_b64}" class="left-logo-main" alt="Logo galería">
+                <div class="title-main">Galería de la expedición</div>
             </div>
-
-            <div class="header-mobile">
-                <div class="header-mobile-title">Galería de la expedición</div>
-                <div class="header-mobile-logos">
-                    <img src="data:image/png;base64,{logo_left_b64}" class="left-logo-mobile" alt="Logo galería">
-                    <img src="data:image/png;base64,{logo_right_b64}" class="right-logo-mobile" alt="Logo Farmaenlace">
-                </div>
-            </div>
-
+            <img src="data:image/png;base64,{logo_right_b64}" class="right-logo-main" alt="Logo Farmaenlace">
         </div>
     </div>
     """,
@@ -832,4 +792,4 @@ if gallery_images:
     carousel_html = build_carousel_html(gallery_images, autoplay_ms=3500)
     components.html(carousel_html, height=860, scrolling=False)
 else:
-    st.warning("No hay imágenes en la carpeta photos.")
+    st.warning("No hay imágenes en la carpeta photos.") 
