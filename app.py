@@ -43,528 +43,309 @@ def mime_from_suffix(path: Path) -> str:
         return "webp"
     return "jpeg"
 
-def build_carousel_html(image_paths, autoplay_ms: int = 3500) -> str:
+# =========================
+# CAROUSEL HTML
+# =========================
+def build_carousel_html(image_paths, autoplay_ms=3500):
+
     slides_html = []
     dots_html = []
-    modal_thumbs_html = []
+    thumbs_html = []
 
     for i, img_path in enumerate(image_paths):
         img_b64 = img_to_base64(img_path)
         mime = mime_from_suffix(img_path)
-        active = "active" if i == 0 else ""
 
-        slides_html.append(
-            f'''
-            <div class="carousel-slide {active}" data-index="{i}">
-                <img src="data:image/{mime};base64,{img_b64}" alt="slide-{i}">
-            </div>
-            '''
-        )
+        slides_html.append(f"""
+        <div class="carousel-slide {'active' if i == 0 else ''}" data-index="{i}">
+            <img src="data:image/{mime};base64,{img_b64}">
+        </div>
+        """)
 
         dots_html.append(
             f'<span class="carousel-dot {"active" if i == 0 else ""}" data-index="{i}"></span>'
         )
 
-        modal_thumbs_html.append(
-            f'''
-            <div class="modal-thumb {"active" if i == 0 else ""}" data-index="{i}">
-                <img src="data:image/{mime};base64,{img_b64}" alt="modal-thumb-{i}">
-            </div>
-            '''
-        )
-
-    slides_str = "\n".join(slides_html)
-    dots_str = "\n".join(dots_html)
-    modal_thumbs_str = "\n".join(modal_thumbs_html)
+        thumbs_html.append(f"""
+        <div class="modal-thumb {'active' if i == 0 else ''}" data-index="{i}">
+            <img src="data:image/{mime};base64,{img_b64}">
+        </div>
+        """)
 
     return f"""
-    <!DOCTYPE html>
     <html>
     <head>
-    <meta charset="utf-8">
-        <style>
-        @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@600;700;800&display=swap');
-
+    <style>
         html, body {{
-            margin: 0;
-            padding: 0;
-            background: transparent;
-            overflow: hidden;
-            font-family: "Source Sans 3", Arial, sans-serif;
-        }}
-
-        .carousel-shell {{
-            width: 100%;
-            max-width: 1320px;
-            margin: 0 auto;
-            box-sizing: border-box;
+            margin:0;
+            padding:0;
+            background:transparent;
+            overflow:hidden;
         }}
 
         .carousel-frame {{
-            width: 100%;
             background: rgba(255,255,255,0.42);
             backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.18);
             border-radius: 28px;
-            overflow: hidden;
             padding: 16px;
-            box-sizing: border-box;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            overflow:hidden;
         }}
 
         .carousel-container {{
-            position: relative;
-            width: 100%;
-            height: 700px;
-            overflow: hidden;
-            border-radius: 22px;
-            background: transparent;
+            position:relative;
+            height:700px;
+            border-radius:22px;
+            overflow:hidden;
         }}
 
         .carousel-slide {{
-            position: absolute;
-            inset: 0;
-            opacity: 0;
-            transition: opacity 0.65s ease;
-            pointer-events: none;
-            cursor: zoom-in;
+            position:absolute;
+            inset:0;
+            opacity:0;
+            transition:.5s;
+            pointer-events:none;
+            cursor:pointer;
         }}
 
         .carousel-slide.active {{
-            opacity: 1;
-            pointer-events: auto;
+            opacity:1;
+            pointer-events:auto;
         }}
 
         .carousel-slide img {{
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            display: block;
+            width:100%;
+            height:100%;
+            object-fit:contain;
         }}
 
         .carousel-btn {{
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 58px;
-            height: 58px;
-            border-radius: 50%;
-            border: none;
-            cursor: pointer;
-            font-size: 28px;
-            color: white;
-            background: rgba(0,0,0,0.22);
-            z-index: 10;
+            position:absolute;
+            top:50%;
+            transform:translateY(-50%);
+            width:58px;
+            height:58px;
+            border:none;
+            border-radius:50%;
+            background:rgba(0,0,0,.25);
+            color:white;
+            font-size:28px;
+            cursor:pointer;
+            z-index:10;
         }}
 
-        .carousel-btn.prev {{
-            left: 20px;
-        }}
-
-        .carousel-btn.next {{
-            right: 20px;
-        }}
+        .prev {{ left:20px; }}
+        .next {{ right:20px; }}
 
         .carousel-dots {{
-            position: absolute;
-            bottom: 18px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 10px;
-            z-index: 11;
+            position:absolute;
+            bottom:15px;
+            left:50%;
+            transform:translateX(-50%);
+            display:flex;
+            gap:10px;
         }}
 
         .carousel-dot {{
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.45);
-            cursor: pointer;
+            width:10px;
+            height:10px;
+            border-radius:50%;
+            background:rgba(255,255,255,.4);
+            cursor:pointer;
         }}
 
         .carousel-dot.active {{
-            background: white;
+            background:white;
         }}
 
         .modal {{
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(12,16,28,0.88);
-            z-index: 9999;
-            padding: 28px;
-            box-sizing: border-box;
+            display:none;
+            position:fixed;
+            inset:0;
+            background:rgba(0,0,0,.9);
+            z-index:9999;
+            padding:20px;
         }}
 
         .modal.open {{
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display:flex;
+            justify-content:center;
+            align-items:center;
         }}
 
         .modal-content {{
-            width: min(1200px, 95vw);
-            height: min(90vh, 900px);
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
+            width:95%;
+            height:90%;
+            display:flex;
+            flex-direction:column;
+            gap:15px;
         }}
 
         .modal-main {{
-            position: relative;
-            flex: 1;
-            border-radius: 22px;
-            overflow: hidden;
-            background: rgba(255,255,255,0.06);
+            flex:1;
+            position:relative;
         }}
 
         .modal-main img {{
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            display: block;
-        }}
-
-        .modal-close {{
-            position: absolute;
-            top: 18px;
-            right: 18px;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            border: none;
-            font-size: 24px;
-            color: white;
-            background: rgba(0,0,0,0.28);
-            cursor: pointer;
-            z-index: 20;
-        }}
-
-        .modal-btn {{
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 58px;
-            height: 58px;
-            border-radius: 50%;
-            border: none;
-            cursor: pointer;
-            font-size: 28px;
-            color: white;
-            background: rgba(0,0,0,0.22);
-            z-index: 20;
-        }}
-
-        .modal-btn.prev {{
-            left: 18px;
-        }}
-
-        .modal-btn.next {{
-            right: 18px;
+            width:100%;
+            height:100%;
+            object-fit:contain;
         }}
 
         .modal-thumb-strip {{
-            display: flex;
-            gap: 10px;
-            overflow-x: auto;
-            padding-bottom: 4px;
-            scrollbar-width: thin;
+            display:flex;
+            gap:10px;
+            overflow-x:auto;
         }}
 
         .modal-thumb {{
-            width: 110px;
-            height: 78px;
-            border-radius: 12px;
-            overflow: hidden;
-            flex: 0 0 auto;
-            cursor: pointer;
-            border: 2px solid transparent;
-            background: rgba(255,255,255,0.16);
-        }}
-
-        .modal-thumb.active {{
-            border-color: white;
+            width:100px;
+            height:70px;
+            cursor:pointer;
+            flex-shrink:0;
         }}
 
         .modal-thumb img {{
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
+            width:100%;
+            height:100%;
+            object-fit:cover;
         }}
 
-        @media (max-width: 1100px) {{
-            .carousel-container {{
-                height: 560px;
-            }}
-
-            .modal-thumb {{
-                width: 92px;
-                height: 68px;
-            }}
+        .modal-close {{
+            position:absolute;
+            top:10px;
+            right:10px;
+            background:black;
+            color:white;
+            border:none;
+            font-size:30px;
+            cursor:pointer;
+            z-index:10;
         }}
 
-        @media (max-width: 768px) {{
-            .carousel-frame {{
-                padding: 10px;
-                border-radius: 24px;
-            }}
-
+        @media (max-width:768px) {{
             .carousel-container {{
-                height: 360px;
-                border-radius: 18px;
+                height:350px;
             }}
 
             .carousel-btn {{
-                width: 44px;
-                height: 44px;
-                font-size: 22px;
-            }}
-
-            .carousel-btn.prev {{
-                left: 10px;
-            }}
-
-            .carousel-btn.next {{
-                right: 10px;
-            }}
-
-            .carousel-dots {{
-                bottom: 10px;
-                gap: 8px;
-            }}
-
-            .carousel-dot {{
-                width: 8px;
-                height: 8px;
-            }}
-
-            .modal {{
-                padding: 14px;
-            }}
-
-            .modal-content {{
-                width: 100%;
-                height: 92vh;
-                gap: 12px;
-            }}
-
-            .modal-main {{
-                border-radius: 16px;
-            }}
-
-            .modal-btn {{
-                width: 44px;
-                height: 44px;
-                font-size: 22px;
-            }}
-
-            .modal-btn.prev {{
-                left: 10px;
-            }}
-
-            .modal-btn.next {{
-                right: 10px;
-            }}
-
-            .modal-close {{
-                top: 10px;
-                right: 10px;
-                width: 38px;
-                height: 38px;
-                font-size: 20px;
-            }}
-
-            .modal-thumb {{
-                width: 78px;
-                height: 58px;
+                width:40px;
+                height:40px;
+                font-size:20px;
             }}
         }}
 
-        @media (max-width: 480px) {{
-            .carousel-frame {{
-                padding: 8px;
-                border-radius: 22px;
-            }}
-
-            .carousel-container {{
-                height: 300px;
-                border-radius: 16px;
-            }}
-
-            .carousel-btn {{
-                width: 38px;
-                height: 38px;
-                font-size: 20px;
-            }}
-
-            .modal-thumb {{
-                width: 68px;
-                height: 52px;
-            }}
-        }}
     </style>
     </head>
     <body>
-        <div class="carousel-shell">
-            <div class="carousel-frame">
-                <div class="carousel-container">
-                    {slides_str}
 
-                    <button class="carousel-btn prev" id="prevBtn">&#10094;</button>
-                    <button class="carousel-btn next" id="nextBtn">&#10095;</button>
+    <div class="carousel-frame">
+        <div class="carousel-container">
 
-                    <div class="carousel-dots">
-                        {dots_str}
-                    </div>
-                </div>
+            {''.join(slides_html)}
+
+            <button class="carousel-btn prev" id="prevBtn">&#10094;</button>
+            <button class="carousel-btn next" id="nextBtn">&#10095;</button>
+
+            <div class="carousel-dots">
+                {''.join(dots_html)}
             </div>
+
         </div>
+    </div>
 
-        <div class="modal" id="imageModal">
-            <div class="modal-content">
-                <div class="modal-main">
-                    <button class="modal-close" id="closeModal">&times;</button>
-                    <button class="modal-btn prev" id="modalPrevBtn">&#10094;</button>
-                    <button class="modal-btn next" id="modalNextBtn">&#10095;</button>
-                    <img id="modalMainImage" src="" alt="Expanded image">
-                </div>
+    <div class="modal" id="modal">
+        <div class="modal-content">
 
-                <div class="modal-thumb-strip" id="modalThumbStrip">
-                    {modal_thumbs_str}
-                </div>
+            <div class="modal-main">
+                <button class="modal-close" id="closeModal">&times;</button>
+                <img id="modalImg">
             </div>
+
+            <div class="modal-thumb-strip">
+                {''.join(thumbs_html)}
+            </div>
+
         </div>
+    </div>
 
-        <script>
-            const slides = document.querySelectorAll(".carousel-slide");
-            const dots = document.querySelectorAll(".carousel-dot");
-            const modalThumbs = document.querySelectorAll(".modal-thumb");
+    <script>
 
-            const prevBtn = document.getElementById("prevBtn");
-            const nextBtn = document.getElementById("nextBtn");
+        const slides = document.querySelectorAll(".carousel-slide");
+        const dots = document.querySelectorAll(".carousel-dot");
+        const thumbs = document.querySelectorAll(".modal-thumb");
 
-            const modal = document.getElementById("imageModal");
-            const modalMainImage = document.getElementById("modalMainImage");
-            const closeModal = document.getElementById("closeModal");
-            const modalPrevBtn = document.getElementById("modalPrevBtn");
-            const modalNextBtn = document.getElementById("modalNextBtn");
+        const modal = document.getElementById("modal");
+        const modalImg = document.getElementById("modalImg");
 
-            let current = 0;
-            let autoplay = null;
+        let current = 0;
+        let autoplay;
 
-            function stopAutoplay() {{
-                if (autoplay) {{
-                    clearInterval(autoplay);
-                    autoplay = null;
-                }}
+        function showSlide(index){{
+            slides.forEach((s,i)=>s.classList.toggle("active",i===index));
+            dots.forEach((d,i)=>d.classList.toggle("active",i===index));
+            current=index;
+
+            if(modal.classList.contains("open")){{
+                modalImg.src=slides[index].querySelector("img").src;
             }}
+        }}
 
-            function restartAutoplay() {{
+        function nextSlide(){{
+            showSlide((current+1)%slides.length);
+        }}
+
+        function prevSlide(){{
+            showSlide((current-1+slides.length)%slides.length);
+        }}
+
+        function startAutoplay(){{
+            autoplay=setInterval(nextSlide,{autoplay_ms});
+        }}
+
+        function stopAutoplay(){{
+            clearInterval(autoplay);
+        }}
+
+        document.getElementById("nextBtn").onclick=()=>{{nextSlide();startOver();}};
+        document.getElementById("prevBtn").onclick=()=>{{prevSlide();startOver();}};
+
+        function startOver(){{
+            stopAutoplay();
+            startAutoplay();
+        }}
+
+        dots.forEach(dot=>{{
+            dot.onclick=()=>{{
+                showSlide(Number(dot.dataset.index));
+                startOver();
+            }};
+        }});
+
+        slides.forEach(slide=>{{
+            slide.onclick=()=>{{
                 stopAutoplay();
-                autoplay = setInterval(nextSlide, {autoplay_ms});
-            }}
-
-            function updateModalThumbs(index) {{
-                modalThumbs.forEach((thumb, i) => {{
-                    thumb.classList.toggle("active", i === index);
-                }});
-            }}
-
-            function updateModalImage(index) {{
-                const activeImg = slides[index].querySelector("img");
-                modalMainImage.src = activeImg.src;
-                updateModalThumbs(index);
-            }}
-
-            function showSlide(index) {{
-                slides.forEach((slide, i) => {{
-                    slide.classList.toggle("active", i === index);
-                }});
-                dots.forEach((dot, i) => {{
-                    dot.classList.toggle("active", i === index);
-                }});
-                current = index;
-
-                if (modal.classList.contains("open")) {{
-                    updateModalImage(index);
-                }}
-            }}
-
-            function nextSlide() {{
-                showSlide((current + 1) % slides.length);
-            }}
-
-            function prevSlide() {{
-                showSlide((current - 1 + slides.length) % slides.length);
-            }}
-
-            function openModal(index) {{
-                stopAutoplay();
-                current = index;
-                updateModalImage(index);
                 modal.classList.add("open");
-            }}
-
-            function closeModalFn() {{
-                modal.classList.remove("open");
-                restartAutoplay();  
-            }}
-
-            nextBtn.onclick = () => {{
-                nextSlide();
-                restartAutoplay();
+                modalImg.src=slide.querySelector("img").src;
             }};
+        }});
 
-            prevBtn.onclick = () => {{
-                prevSlide();
-                restartAutoplay();
+        thumbs.forEach(thumb=>{{
+            thumb.onclick=()=>{{
+                const index=Number(thumb.dataset.index);
+                showSlide(index);
             }};
+        }});
 
-            dots.forEach(dot => {{
-                dot.onclick = () => {{
-                    showSlide(Number(dot.dataset.index));
-                    restartAutoplay();
-                }};
-            }});
+        document.getElementById("closeModal").onclick=()=>{{
+            modal.classList.remove("open");
+            startAutoplay();
+        }};
 
-            slides.forEach(slide => {{
-                slide.onclick = () => {{
-                    const index = Number(slide.dataset.index);
-                    openModal(index);
-                }};
-            }});
+        showSlide(0);
+        startAutoplay();
 
-            modalThumbs.forEach(thumb => {{
-                thumb.onclick = () => {{
-                    const index = Number(thumb.dataset.index);
-                    showSlide(index);
-                }};
-            }});
+    </script>
 
-            modalNextBtn.onclick = () => nextSlide();
-            modalPrevBtn.onclick = () => prevSlide();
-            closeModal.onclick = closeModalFn;
-
-            modal.onclick = (e) => {{
-                if (e.target === modal) {{
-                    closeModalFn();
-                }}
-            }};
-
-            document.addEventListener("keydown", (e) => {{
-                if (!modal.classList.contains("open")) return;
-
-                if (e.key === "Escape") closeModalFn();
-                if (e.key === "ArrowRight") nextSlide();
-                if (e.key === "ArrowLeft") prevSlide();
-            }});
-
-            showSlide(0);
-            restartAutoplay();
-        </script>
     </body>
     </html>
     """
@@ -580,216 +361,138 @@ gallery_images = get_images(PHOTO_FOLDER)
 # =========================
 # PAGE CSS
 # =========================
-st.markdown(
-    f"""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@600;700;800&display=swap');
+st.markdown(f"""
+<style>
 
-    .stApp {{
-        background: transparent;
-        font-family: "Source Sans 3", Arial, sans-serif;
-    }}
+.stApp {{
+    background: transparent;
+}}
 
-    .stApp::before {{
-        content: "";
-        position: fixed;
-        inset: 0;
-        background: url("data:image/jpg;base64,{bg_b64}") center center / cover no-repeat;
-        filter: blur(6px);
-        transform: scale(1.03);
-        opacity: 0.62;
-        z-index: -2;
-    }}
+.stApp::before {{
+    content:"";
+    position:fixed;
+    inset:0;
+    background:url("data:image/jpg;base64,{bg_b64}") center center / cover no-repeat;
+    filter:blur(6px);
+    transform:scale(1.03);
+    opacity:.62;
+    z-index:-2;
+}}
 
-    .stApp::after {{
-        content: "";
-        position: fixed;
-        inset: 0;
-        background: rgba(255,255,255,0.05);
-        z-index: -1;
-    }}
+.stApp::after {{
+    content:"";
+    position:fixed;
+    inset:0;
+    background:rgba(255,255,255,.05);
+    z-index:-1;
+}}
 
-    [data-testid="stHeader"] {{
-        background: transparent;
-    }}
+[data-testid="stHeader"] {{
+    background:transparent;
+}}
 
-    .block-container {{
-        max-width: 1450px;
-        padding-top: 2rem;
-        padding-bottom: 1rem;
-        padding-left: 1rem;
-        padding-right: 1rem;
-    }}
+.block-container {{
+    max-width:1450px;
+    padding-top:2rem;
+}}
 
-    .header-wrap-main {{
-        width: 100%;
-        max-width: 1320px;
-        margin: 0 auto 24px auto;
-        box-sizing: border-box;
-    }}
+.header-wrap-main {{
+    max-width:1320px;
+    margin:auto auto 24px auto;
+}}
+
+.header-box-main {{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:rgba(255,255,255,.42);
+    backdrop-filter:blur(10px);
+    border-radius:28px;
+    padding:20px 30px;
+}}
+
+.header-left-main {{
+    display:flex;
+    align-items:center;
+    gap:20px;
+}}
+
+.left-logo-main {{
+    width:90px;
+}}
+
+.right-logo-main {{
+    width:220px;
+}}
+
+.title-main {{
+    font-size:44px;
+    font-weight:800;
+    color:#20263a;
+}}
+
+.mobile-right-logo {{
+    display:none;
+}}
+
+@media (max-width:768px) {{
 
     .header-box-main {{
-        width: 100%;
-        min-height: 136px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 24px;
+        flex-direction:column;
+        gap:15px;
+        text-align:center;
+    }}
 
-        background: rgba(255,255,255,0.42);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
+    .desktop-right-logo {{
+        display:none;
+    }}
 
-        border: 1px solid rgba(255,255,255,0.18);
-        border-radius: 28px;
-        padding: 18px 28px;
-        box-sizing: border-box;
-        overflow: hidden;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    .mobile-right-logo {{
+        display:block;
+        width:120px;
     }}
 
     .header-left-main {{
-        display: flex;
-        align-items: center;
-        gap: 22px;
-        min-width: 0;
-        height: 100%;
-        flex: 1 1 auto;
-    }}
-
-    .left-logo-main {{
-        width: 95px;
-        height: auto;
-        display: block;
-        position: relative;
-        top: -3px;
-        flex-shrink: 0;
-    }}
-
-    .right-logo-main {{
-        width: 220px;
-        height: auto;
-        display: block;
-        flex-shrink: 0;
+        flex-direction:row;
+        justify-content:center;
     }}
 
     .title-main {{
-        display: flex;
-        align-items: center;
-        font-size: 44px;
-        font-weight: 800;
-        line-height: 1.02;
-        color: #20263a;
-        white-space: nowrap;
-        margin: 0;
-        padding: 0;
-        font-family: "Source Sans 3", Arial, sans-serif;
+        font-size:26px;
     }}
 
-    @media (max-width: 1100px) {{
-        .title-main {{
-            font-size: 34px;
-            white-space: normal;
-        }}
-
-        .right-logo-main {{
-            width: 180px;
-        }}
-
-        .header-box-main {{
-            min-height: 120px;
-        }}
+    .left-logo-main {{
+        width:65px;
     }}
+}}
 
-    @media (max-width: 768px) {{
-        .block-container {{
-            padding-top: 1rem;
-            padding-left: 0.7rem;
-            padding-right: 0.7rem;
-            padding-bottom: 0.7rem;
-        }}
-
-        .header-wrap-main {{
-            margin: 0 auto 16px auto;
-        }}
-
-        .header-box-main {{
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 14px;
-            padding: 16px 18px;
-            min-height: auto;
-        }}
-
-        .header-left-main {{
-            width: 100%;
-            align-items: center;
-            gap: 14px;
-        }}
-
-        .left-logo-main {{
-            width: 72px;
-            top: 0;
-        }}
-
-        .title-main {{
-            font-size: 24px;
-            line-height: 1.08;
-            white-space: normal;
-        }}
-
-        .right-logo-main {{
-            width: 150px;
-            align-self: flex-end;
-        }}
-    }}
-
-    @media (max-width: 480px) {{
-        .header-box-main {{
-            padding: 14px 14px;
-            border-radius: 24px;
-        }}
-
-        .left-logo-main {{
-            width: 64px;
-        }}
-
-        .title-main {{
-            font-size: 22px;
-        }}
-
-        .right-logo-main {{
-            width: 135px;
-        }}
-    }}
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+</style>
+""", unsafe_allow_html=True)
 
 # =========================
 # HEADER
 # =========================
-st.markdown(
-    f"""
-    <div class="header-wrap-main">
-        <div class="header-box-main">
-            <div class="header-left-main">
-                <img src="data:image/png;base64,{logo_left_b64}" class="left-logo-main" alt="Logo galería">
-                <div class="title-main">Galería de la expedición</div>
-            </div>
-            <img src="data:image/png;base64,{logo_right_b64}" class="right-logo-main" alt="Logo Farmaenlace">
+st.markdown(f"""
+<div class="header-wrap-main">
+    <div class="header-box-main">
+
+        <div class="header-left-main">
+            <img src="data:image/png;base64,{logo_left_b64}" class="left-logo-main">
+            <div class="title-main">Galería de la expedición</div>
         </div>
+
+        <img src="data:image/png;base64,{logo_right_b64}" class="right-logo-main desktop-right-logo">
+
+        <img src="data:image/png;base64,{logo_right_b64}" class="mobile-right-logo">
+
     </div>
-    """,
-    unsafe_allow_html=True
-)
+</div>
+""", unsafe_allow_html=True)
 
 # =========================
 # CAROUSEL
 # =========================
 if gallery_images:
-    carousel_html = build_carousel_html(gallery_images, autoplay_ms=3500)
-    components.html(carousel_html, height=860, scrolling=False)
+    components.html(build_carousel_html(gallery_images), height=860)
 else:
-    st.warning("No hay imágenes en la carpeta photos.") 
+    st.warning("No hay imágenes.")
