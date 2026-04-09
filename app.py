@@ -82,7 +82,7 @@ def build_carousel_html(image_paths, autoplay_ms: int = 3500) -> str:
     <html>
     <head>
     <meta charset="utf-8">
-        <style>
+    <style>
         @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@600;700;800&display=swap');
 
         html, body {{
@@ -510,7 +510,7 @@ def build_carousel_html(image_paths, autoplay_ms: int = 3500) -> str:
 
             function closeModalFn() {{
                 modal.classList.remove("open");
-                restartAutoplay();  
+                restartAutoplay();
             }}
 
             nextBtn.onclick = () => {{
@@ -686,6 +686,14 @@ st.markdown(
         font-family: "Source Sans 3", Arial, sans-serif;
     }}
 
+    .mobile-logos-row {{
+        display: none;
+    }}
+
+    .desktop-logo {{
+        display: block;
+    }}
+
     @media (max-width: 1100px) {{
         .title-main {{
             font-size: 34px;
@@ -715,20 +723,22 @@ st.markdown(
 
         .header-box-main {{
             flex-direction: column;
-            align-items: flex-start;
-            gap: 14px;
+            align-items: center;
+            gap: 12px;
             padding: 16px 18px;
             min-height: auto;
         }}
 
         .header-left-main {{
             width: 100%;
+            display: flex;
+            justify-content: center;
             align-items: center;
             gap: 14px;
         }}
 
         .left-logo-main {{
-            width: 72px;
+            width: 64px;
             top: 0;
         }}
 
@@ -736,11 +746,30 @@ st.markdown(
             font-size: 24px;
             line-height: 1.08;
             white-space: normal;
+            text-align: center;
+            justify-content: center;
         }}
 
-        .right-logo-main {{
-            width: 150px;
-            align-self: flex-end;
+        .desktop-logo {{
+            display: none;
+        }}
+
+        .mobile-logos-row {{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            width: 100%;
+        }}
+
+        .mobile-logos-row .left-logo-main {{
+            width: 64px;
+            display: block;
+        }}
+
+        .mobile-logos-row .right-logo-main {{
+            width: 130px;
+            display: block;
         }}
     }}
 
@@ -751,15 +780,19 @@ st.markdown(
         }}
 
         .left-logo-main {{
-            width: 64px;
+            width: 58px;
         }}
 
         .title-main {{
             font-size: 22px;
         }}
 
-        .right-logo-main {{
-            width: 135px;
+        .mobile-logos-row .left-logo-main {{
+            width: 58px;
+        }}
+
+        .mobile-logos-row .right-logo-main {{
+            width: 120px;
         }}
     }}
     </style>
@@ -778,7 +811,13 @@ st.markdown(
                 <img src="data:image/png;base64,{logo_left_b64}" class="left-logo-main" alt="Logo galería">
                 <div class="title-main">Galería de la expedición</div>
             </div>
-            <img src="data:image/png;base64,{logo_right_b64}" class="right-logo-main" alt="Logo Farmaenlace">
+
+            <img src="data:image/png;base64,{logo_right_b64}" class="right-logo-main desktop-logo" alt="Logo Farmaenlace">
+
+            <div class="mobile-logos-row">
+                <img src="data:image/png;base64,{logo_left_b64}" class="left-logo-main" alt="Logo galería">
+                <img src="data:image/png;base64,{logo_right_b64}" class="right-logo-main" alt="Logo Farmaenlace">
+            </div>
         </div>
     </div>
     """,
@@ -792,4 +831,4 @@ if gallery_images:
     carousel_html = build_carousel_html(gallery_images, autoplay_ms=3500)
     components.html(carousel_html, height=860, scrolling=False)
 else:
-    st.warning("No hay imágenes en la carpeta photos.") 
+    st.warning("No hay imágenes en la carpeta photos.")
