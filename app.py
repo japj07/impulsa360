@@ -82,7 +82,7 @@ def build_carousel_html(image_paths, autoplay_ms: int = 3500) -> str:
     <html>
     <head>
     <meta charset="utf-8">
-    <style>
+        <style>
         @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@600;700;800&display=swap');
 
         html, body {{
@@ -305,6 +305,106 @@ def build_carousel_html(image_paths, autoplay_ms: int = 3500) -> str:
                 height: 68px;
             }}
         }}
+
+        @media (max-width: 768px) {{
+            .carousel-frame {{
+                padding: 10px;
+                border-radius: 24px;
+            }}
+
+            .carousel-container {{
+                height: 360px;
+                border-radius: 18px;
+            }}
+
+            .carousel-btn {{
+                width: 44px;
+                height: 44px;
+                font-size: 22px;
+            }}
+
+            .carousel-btn.prev {{
+                left: 10px;
+            }}
+
+            .carousel-btn.next {{
+                right: 10px;
+            }}
+
+            .carousel-dots {{
+                bottom: 10px;
+                gap: 8px;
+            }}
+
+            .carousel-dot {{
+                width: 8px;
+                height: 8px;
+            }}
+
+            .modal {{
+                padding: 14px;
+            }}
+
+            .modal-content {{
+                width: 100%;
+                height: 92vh;
+                gap: 12px;
+            }}
+
+            .modal-main {{
+                border-radius: 16px;
+            }}
+
+            .modal-btn {{
+                width: 44px;
+                height: 44px;
+                font-size: 22px;
+            }}
+
+            .modal-btn.prev {{
+                left: 10px;
+            }}
+
+            .modal-btn.next {{
+                right: 10px;
+            }}
+
+            .modal-close {{
+                top: 10px;
+                right: 10px;
+                width: 38px;
+                height: 38px;
+                font-size: 20px;
+            }}
+
+            .modal-thumb {{
+                width: 78px;
+                height: 58px;
+            }}
+        }}
+
+        @media (max-width: 480px) {{
+            .carousel-frame {{
+                padding: 8px;
+                border-radius: 22px;
+            }}
+
+            .carousel-container {{
+                height: 300px;
+                border-radius: 16px;
+            }}
+
+            .carousel-btn {{
+                width: 38px;
+                height: 38px;
+                font-size: 20px;
+            }}
+
+            .modal-thumb {{
+                width: 68px;
+                height: 52px;
+            }}
+        }}
     </style>
     </head>
     <body>
@@ -517,6 +617,8 @@ st.markdown(
         max-width: 1450px;
         padding-top: 2rem;
         padding-bottom: 1rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
     }}
 
     .header-wrap-main {{
@@ -552,6 +654,7 @@ st.markdown(
         gap: 22px;
         min-width: 0;
         height: 100%;
+        flex: 1 1 auto;
     }}
 
     .left-logo-main {{
@@ -595,6 +698,68 @@ st.markdown(
 
         .header-box-main {{
             min-height: 120px;
+        }}
+    }}
+
+    @media (max-width: 768px) {{
+        .block-container {{
+            padding-top: 1rem;
+            padding-left: 0.7rem;
+            padding-right: 0.7rem;
+            padding-bottom: 0.7rem;
+        }}
+
+        .header-wrap-main {{
+            margin: 0 auto 16px auto;
+        }}
+
+        .header-box-main {{
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 16px 18px;
+            min-height: auto;
+        }}
+
+        .header-left-main {{
+            width: 100%;
+            align-items: center;
+            gap: 14px;
+        }}
+
+        .left-logo-main {{
+            width: 72px;
+            top: 0;
+        }}
+
+        .title-main {{
+            font-size: 24px;
+            line-height: 1.08;
+            white-space: normal;
+        }}
+
+        .right-logo-main {{
+            width: 150px;
+            align-self: flex-end;
+        }}
+    }}
+
+    @media (max-width: 480px) {{
+        .header-box-main {{
+            padding: 14px 14px;
+            border-radius: 24px;
+        }}
+
+        .left-logo-main {{
+            width: 64px;
+        }}
+
+        .title-main {{
+            font-size: 22px;
+        }}
+
+        .right-logo-main {{
+            width: 135px;
         }}
     }}
     </style>
