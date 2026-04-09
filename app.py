@@ -43,100 +43,6 @@ def mime_from_suffix(path: Path) -> str:
         return "webp"
     return "jpeg"
 
-def build_header_html(left_logo_b64: str, right_logo_b64: str) -> str:
-    return f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-    <meta charset="utf-8">
-    <style>
-        html, body {{
-            margin: 0;
-            padding: 0;
-            background: transparent;
-            overflow: hidden;
-            font-family: Arial, sans-serif;
-        }}
-
-        .header-wrap {{
-            width: 100%;
-            max-width: 1320px;
-            margin: 0 auto;
-            box-sizing: border-box;
-        }}
-
-        .header-box {{
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 24px;
-
-            background: rgba(255,255,255,0.42);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-
-            border: 1px solid rgba(255,255,255,0.18);
-            border-radius: 28px;
-            padding: 20px 28px;
-            box-sizing: border-box;
-        }}
-
-        .header-left {{
-            display: flex;
-            align-items: center;
-            gap: 22px;
-            min-width: 0;
-        }}
-
-        .left-logo {{
-            width: 95px;
-            height: auto;
-            display: block;
-            flex-shrink: 0;
-        }}
-
-        .right-logo {{
-            width: 220px;
-            height: auto;
-            display: block;
-            flex-shrink: 0;
-        }}
-
-        .title {{
-            font-size: 44px;
-            font-weight: 800;
-            line-height: 1.05;
-            color: #20263a;
-            white-space: nowrap;
-        }}
-
-        @media (max-width: 1100px) {{
-            .title {{
-                font-size: 34px;
-                white-space: normal;
-            }}
-
-            .right-logo {{
-                width: 180px;
-            }}
-        }}
-    </style>
-    </head>
-    <body>
-        <div class="header-wrap">
-            <div class="header-box">
-                <div class="header-left">
-                    <img class="left-logo" src="data:image/png;base64,{left_logo_b64}" alt="Logo galería">
-                    <div class="title">Galería de la expedición</div>
-                </div>
-                <img class="right-logo" src="data:image/png;base64,{right_logo_b64}" alt="Logo Farmaenlace">
-            </div>
-        </div>
-    </body>
-    </html>
-    """
-
 def build_carousel_html(image_paths, autoplay_ms: int = 3500) -> str:
     slides_html = []
     dots_html = []
@@ -165,11 +71,14 @@ def build_carousel_html(image_paths, autoplay_ms: int = 3500) -> str:
     <head>
     <meta charset="utf-8">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@600;700;800&display=swap');
+
         html, body {{
             margin: 0;
             padding: 0;
             background: transparent;
             overflow: hidden;
+            font-family: "Source Sans 3", Arial, sans-serif;
         }}
 
         .carousel-shell {{
@@ -186,8 +95,10 @@ def build_carousel_html(image_paths, autoplay_ms: int = 3500) -> str:
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.18);
             border-radius: 28px;
+            overflow: hidden;
             padding: 16px;
             box-sizing: border-box;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
         }}
 
         .carousel-container {{
@@ -356,8 +267,11 @@ gallery_images = get_images(PHOTO_FOLDER)
 st.markdown(
     f"""
     <style>
+    @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@600;700;800&display=swap');
+
     .stApp {{
         background: transparent;
+        font-family: "Source Sans 3", Arial, sans-serif;
     }}
 
     .stApp::before {{
@@ -388,6 +302,85 @@ st.markdown(
         padding-top: 2rem;
         padding-bottom: 1rem;
     }}
+
+    .header-wrap-main {{
+        width: 100%;
+        max-width: 1320px;
+        margin: 0 auto 24px auto;
+        box-sizing: border-box;
+    }}
+
+    .header-box-main {{
+        width: 100%;
+        min-height: 136px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 24px;
+
+        background: rgba(255,255,255,0.42);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+
+        border: 1px solid rgba(255,255,255,0.18);
+        border-radius: 28px;
+        padding: 18px 28px;
+        box-sizing: border-box;
+        overflow: hidden;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }}
+
+    .header-left-main {{
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        min-width: 0;
+        height: 100%;
+    }}
+
+    .left-logo-main {{
+        width: 95px;
+        height: auto;
+        display: block;
+        position: relative;
+        top: -3px;
+        flex-shrink: 0;
+    }}
+
+    .right-logo-main {{
+        width: 220px;
+        height: auto;
+        display: block;
+        flex-shrink: 0;
+    }}
+
+    .title-main {{
+        display: flex;
+        align-items: center;
+        font-size: 44px;
+        font-weight: 800;
+        line-height: 1.02;
+        color: #20263a;
+        white-space: nowrap;
+        margin: 0;
+        padding: 0;
+        font-family: "Source Sans 3", Arial, sans-serif;
+    }}
+
+    @media (max-width: 1100px) {{
+        .title-main {{
+            font-size: 34px;
+            white-space: normal;
+        }}
+
+        .right-logo-main {{
+            width: 180px;
+        }}
+
+        .header-box-main {{
+            min-height: 120px;
+        }}
+    }}
     </style>
     """,
     unsafe_allow_html=True
@@ -396,8 +389,20 @@ st.markdown(
 # =========================
 # HEADER
 # =========================
-header_html = build_header_html(logo_left_b64, logo_right_b64)
-components.html(header_html, height=120, scrolling=False)
+st.markdown(
+    f"""
+    <div class="header-wrap-main">
+        <div class="header-box-main">
+            <div class="header-left-main">
+                <img src="data:image/png;base64,{logo_left_b64}" class="left-logo-main" alt="Logo galería">
+                <div class="title-main">Galería de la expedición</div>
+            </div>
+            <img src="data:image/png;base64,{logo_right_b64}" class="right-logo-main" alt="Logo Farmaenlace">
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 # =========================
 # CAROUSEL
@@ -406,4 +411,4 @@ if gallery_images:
     carousel_html = build_carousel_html(gallery_images, autoplay_ms=3500)
     components.html(carousel_html, height=760, scrolling=False)
 else:
-    st.warning("No hay imágenes en la carpeta photos.")
+    st.warning("No hay imágenes en la carpeta photos.") 
