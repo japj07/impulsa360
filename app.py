@@ -770,11 +770,18 @@ st.markdown(
 # =========================
 # HEADER
 # =========================
-# =========================
-# HEADER
-# =========================
 st.markdown(
-    f'<div class="header-wrap-main"><div class="header-box-main"><div class="header-left-main"><img src="data:image/png;base64,{logo_left_b64}" class="left-logo-main" alt="Logo galería"><div class="title-main">Galería de la expedición</div></div><img src="data:image/png;base64,{logo_right_b64}" class="right-logo-main desktop-right-logo" alt="Logo Farmaenlace"><img src="data:image/png;base64,{logo_right_b64}" class="mobile-right-logo" alt="Logo Farmaenlace"></div></div>',
+    f"""
+    <div class="header-wrap-main">
+        <div class="header-box-main">
+            <div class="header-left-main">
+                <img src="data:image/png;base64,{logo_left_b64}" class="left-logo-main" alt="Logo galería">
+                <div class="title-main">Galería de la expedición</div>
+            </div>
+            <img src="data:image/png;base64,{logo_right_b64}" class="right-logo-main" alt="Logo Farmaenlace">
+        </div>
+    </div>
+    """,
     unsafe_allow_html=True
 )
 
