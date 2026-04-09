@@ -686,6 +686,10 @@ st.markdown(
         font-family: "Source Sans 3", Arial, sans-serif;
     }}
 
+    .mobile-logos-row {{
+        display: contents;
+    }}
+
     @media (max-width: 1100px) {{
         .title-main {{
             font-size: 34px;
@@ -715,7 +719,7 @@ st.markdown(
 
         .header-box-main {{
             flex-direction: column;
-            align-items: flex-start;
+            align-items: stretch;
             gap: 14px;
             padding: 16px 18px;
             min-height: auto;
@@ -723,8 +727,25 @@ st.markdown(
 
         .header-left-main {{
             width: 100%;
+            flex-direction: column;
             align-items: center;
-            gap: 14px;
+            gap: 12px;
+        }}
+
+        .title-main {{
+            font-size: 24px;
+            line-height: 1.08;
+            white-space: normal;
+            text-align: center;
+            justify-content: center;
+        }}
+
+        .mobile-logos-row {{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            width: 100%;
         }}
 
         .left-logo-main {{
@@ -732,15 +753,9 @@ st.markdown(
             top: 0;
         }}
 
-        .title-main {{
-            font-size: 24px;
-            line-height: 1.08;
-            white-space: normal;
-        }}
-
         .right-logo-main {{
             width: 150px;
-            align-self: flex-end;
+            align-self: auto;
         }}
     }}
 
@@ -761,6 +776,10 @@ st.markdown(
         .right-logo-main {{
             width: 135px;
         }}
+
+        .mobile-logos-row {{
+            gap: 14px;
+        }}
     }}
     </style>
     """,
@@ -775,10 +794,12 @@ st.markdown(
     <div class="header-wrap-main">
         <div class="header-box-main">
             <div class="header-left-main">
-                <img src="data:image/png;base64,{logo_left_b64}" class="left-logo-main" alt="Logo galería">
                 <div class="title-main">Galería de la expedición</div>
+                <div class="mobile-logos-row">
+                    <img src="data:image/png;base64,{logo_left_b64}" class="left-logo-main" alt="Logo galería">
+                    <img src="data:image/png;base64,{logo_right_b64}" class="right-logo-main" alt="Logo Farmaenlace">
+                </div>
             </div>
-            <img src="data:image/png;base64,{logo_right_b64}" class="right-logo-main" alt="Logo Farmaenlace">
         </div>
     </div>
     """,
@@ -792,4 +813,4 @@ if gallery_images:
     carousel_html = build_carousel_html(gallery_images, autoplay_ms=3500)
     components.html(carousel_html, height=860, scrolling=False)
 else:
-    st.warning("No hay imágenes en la carpeta photos.") 
+    st.warning("No hay imágenes en la carpeta photos.")
