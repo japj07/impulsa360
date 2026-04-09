@@ -46,24 +46,36 @@ def mime_from_suffix(path: Path) -> str:
 def build_carousel_html(image_paths, autoplay_ms: int = 3500) -> str:
     slides_html = []
     dots_html = []
+    modal_thumbs_html = []
 
     for i, img_path in enumerate(image_paths):
         img_b64 = img_to_base64(img_path)
         mime = mime_from_suffix(img_path)
         active = "active" if i == 0 else ""
+
         slides_html.append(
             f'''
-            <div class="carousel-slide {active}">
+            <div class="carousel-slide {active}" data-index="{i}">
                 <img src="data:image/{mime};base64,{img_b64}" alt="slide-{i}">
             </div>
             '''
         )
+
         dots_html.append(
             f'<span class="carousel-dot {"active" if i == 0 else ""}" data-index="{i}"></span>'
         )
 
+        modal_thumbs_html.append(
+            f'''
+            <div class="modal-thumb {"active" if i == 0 else ""}" data-index="{i}">
+                <img src="data:image/{mime};base64,{img_b64}" alt="modal-thumb-{i}">
+            </div>
+            '''
+        )
+
     slides_str = "\n".join(slides_html)
     dots_str = "\n".join(dots_html)
+    modal_thumbs_str = "\n".join(modal_thumbs_html)
 
     return f"""
     <!DOCTYPE html>
@@ -116,6 +128,7 @@ def build_carousel_html(image_paths, autoplay_ms: int = 3500) -> str:
             opacity: 0;
             transition: opacity 0.65s ease;
             pointer-events: none;
+            cursor: zoom-in;
         }}
 
         .carousel-slide.active {{
@@ -175,9 +188,121 @@ def build_carousel_html(image_paths, autoplay_ms: int = 3500) -> str:
             background: white;
         }}
 
+        .modal {{
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(12,16,28,0.88);
+            z-index: 9999;
+            padding: 28px;
+            box-sizing: border-box;
+        }}
+
+        .modal.open {{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }}
+
+        .modal-content {{
+            width: min(1200px, 95vw);
+            height: min(90vh, 900px);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }}
+
+        .modal-main {{
+            position: relative;
+            flex: 1;
+            border-radius: 22px;
+            overflow: hidden;
+            background: rgba(255,255,255,0.06);
+        }}
+
+        .modal-main img {{
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }}
+
+        .modal-close {{
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            font-size: 24px;
+            color: white;
+            background: rgba(0,0,0,0.28);
+            cursor: pointer;
+            z-index: 20;
+        }}
+
+        .modal-btn {{
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 28px;
+            color: white;
+            background: rgba(0,0,0,0.22);
+            z-index: 20;
+        }}
+
+        .modal-btn.prev {{
+            left: 18px;
+        }}
+
+        .modal-btn.next {{
+            right: 18px;
+        }}
+
+        .modal-thumb-strip {{
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            scrollbar-width: thin;
+        }}
+
+        .modal-thumb {{
+            width: 110px;
+            height: 78px;
+            border-radius: 12px;
+            overflow: hidden;
+            flex: 0 0 auto;
+            cursor: pointer;
+            border: 2px solid transparent;
+            background: rgba(255,255,255,0.16);
+        }}
+
+        .modal-thumb.active {{
+            border-color: white;
+        }}
+
+        .modal-thumb img {{
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }}
+
         @media (max-width: 1100px) {{
             .carousel-container {{
                 height: 560px;
+            }}
+
+            .modal-thumb {{
+                width: 92px;
+                height: 68px;
             }}
         }}
     </style>
@@ -198,14 +323,61 @@ def build_carousel_html(image_paths, autoplay_ms: int = 3500) -> str:
             </div>
         </div>
 
+        <div class="modal" id="imageModal">
+            <div class="modal-content">
+                <div class="modal-main">
+                    <button class="modal-close" id="closeModal">&times;</button>
+                    <button class="modal-btn prev" id="modalPrevBtn">&#10094;</button>
+                    <button class="modal-btn next" id="modalNextBtn">&#10095;</button>
+                    <img id="modalMainImage" src="" alt="Expanded image">
+                </div>
+
+                <div class="modal-thumb-strip" id="modalThumbStrip">
+                    {modal_thumbs_str}
+                </div>
+            </div>
+        </div>
+
         <script>
             const slides = document.querySelectorAll(".carousel-slide");
             const dots = document.querySelectorAll(".carousel-dot");
+            const modalThumbs = document.querySelectorAll(".modal-thumb");
+
             const prevBtn = document.getElementById("prevBtn");
             const nextBtn = document.getElementById("nextBtn");
 
+            const modal = document.getElementById("imageModal");
+            const modalMainImage = document.getElementById("modalMainImage");
+            const closeModal = document.getElementById("closeModal");
+            const modalPrevBtn = document.getElementById("modalPrevBtn");
+            const modalNextBtn = document.getElementById("modalNextBtn");
+
             let current = 0;
             let autoplay = null;
+
+            function stopAutoplay() {{
+                if (autoplay) {{
+                    clearInterval(autoplay);
+                    autoplay = null;
+                }}
+            }}
+
+            function restartAutoplay() {{
+                stopAutoplay();
+                autoplay = setInterval(nextSlide, {autoplay_ms});
+            }}
+
+            function updateModalThumbs(index) {{
+                modalThumbs.forEach((thumb, i) => {{
+                    thumb.classList.toggle("active", i === index);
+                }});
+            }}
+
+            function updateModalImage(index) {{
+                const activeImg = slides[index].querySelector("img");
+                modalMainImage.src = activeImg.src;
+                updateModalThumbs(index);
+            }}
 
             function showSlide(index) {{
                 slides.forEach((slide, i) => {{
@@ -215,6 +387,10 @@ def build_carousel_html(image_paths, autoplay_ms: int = 3500) -> str:
                     dot.classList.toggle("active", i === index);
                 }});
                 current = index;
+
+                if (modal.classList.contains("open")) {{
+                    updateModalImage(index);
+                }}
             }}
 
             function nextSlide() {{
@@ -225,9 +401,16 @@ def build_carousel_html(image_paths, autoplay_ms: int = 3500) -> str:
                 showSlide((current - 1 + slides.length) % slides.length);
             }}
 
-            function restartAutoplay() {{
-                if (autoplay) clearInterval(autoplay);
-                autoplay = setInterval(nextSlide, {autoplay_ms});
+            function openModal(index) {{
+                stopAutoplay();
+                current = index;
+                updateModalImage(index);
+                modal.classList.add("open");
+            }}
+
+            function closeModalFn() {{
+                modal.classList.remove("open");
+                restartAutoplay();  
             }}
 
             nextBtn.onclick = () => {{
@@ -247,6 +430,39 @@ def build_carousel_html(image_paths, autoplay_ms: int = 3500) -> str:
                 }};
             }});
 
+            slides.forEach(slide => {{
+                slide.onclick = () => {{
+                    const index = Number(slide.dataset.index);
+                    openModal(index);
+                }};
+            }});
+
+            modalThumbs.forEach(thumb => {{
+                thumb.onclick = () => {{
+                    const index = Number(thumb.dataset.index);
+                    showSlide(index);
+                }};
+            }});
+
+            modalNextBtn.onclick = () => nextSlide();
+            modalPrevBtn.onclick = () => prevSlide();
+            closeModal.onclick = closeModalFn;
+
+            modal.onclick = (e) => {{
+                if (e.target === modal) {{
+                    closeModalFn();
+                }}
+            }};
+
+            document.addEventListener("keydown", (e) => {{
+                if (!modal.classList.contains("open")) return;
+
+                if (e.key === "Escape") closeModalFn();
+                if (e.key === "ArrowRight") nextSlide();
+                if (e.key === "ArrowLeft") prevSlide();
+            }});
+
+            showSlide(0);
             restartAutoplay();
         </script>
     </body>
@@ -409,6 +625,6 @@ st.markdown(
 # =========================
 if gallery_images:
     carousel_html = build_carousel_html(gallery_images, autoplay_ms=3500)
-    components.html(carousel_html, height=760, scrolling=False)
+    components.html(carousel_html, height=860, scrolling=False)
 else:
     st.warning("No hay imágenes en la carpeta photos.") 
